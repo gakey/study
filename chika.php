@@ -8,66 +8,92 @@
  */
 
 
-$filename = "file.txt";
-$fh = fopen($filename, "r");
-$stdinArr = array();
+class Chika {
 
+	private $filename = '';
 
-$yosoku_point = fgets($fh);
-$yosoku_point_arr = explode(" ",$yosoku_point);
-$x = $yosoku_point_arr[0];
-$y = $yosoku_point_arr[1];
+	public function __construct($filename) {
+		$this->setFileName($filename);
+	}
 
-$kinbou_num = fgets($fh);
+    public function setFileName($filename) {
+        $this->filename = (string)filter_var($filename);
+    }
 
-$chika_point_num = fgets($fh);
+    public function getFileName() {
+        return $this->filename;
+    }
 
-$distance_arr = array();
-$chika_arr = array();
+	function calcChika($filename) {
+		$fh = fopen($filename, "r");
+		$stdinArr = array();
 
-for ( $i = 0; $i < $chika_point_num; $i++ ) {
-	$chika_line = fgets($fh);
-	$chika_line_arr = explode(" ",$chika_line);
+		$yosoku_point = fgets($fh);
+		$yosoku_point_arr = explode(" ",$yosoku_point);
+		$x = $yosoku_point_arr[0];
+		$y = $yosoku_point_arr[1];
 
-	$chika_line_x = $chika_line_arr[0];
-	$chika_line_y = $chika_line_arr[1];
-	$chika = $chika_line_arr[2];
+		$kinbou_num = fgets($fh);
 
-	$distance = sqrt(pow(abs($x - $chika_line_x),2) + pow(abs($y - $chika_line_y),2));
+		$chika_point_num = fgets($fh);
 
-	$distance_arr[] = array($i => $distance);
-	$chika_arr[] = $chika;
-}
+		$distance_arr = array();
+		$chika_arr = array();
 
-$total_cnt = count($distance_arr);
+		for ( $i = 0; $i < $chika_point_num; $i++ ) {
+			$chika_line = fgets($fh);
+			$chika_line_arr = explode(" ",$chika_line);
 
-for ( $i = 0; $i < $total_cnt; $i++) {
-	for ( $j = $i + 1; $j < $total_cnt; ++$j) {
-		if ($distance_arr[$i][$i] > $distance_arr[$j][$j]) {
-			$tmp_arr = array($j => $distance_arr[$i][$i]);
-			$distance_arr[$i] = array($i => $distance_arr[$j][$j]);
-			$distance_arr[$j] = $tmp_arr;
+			$chika_line_x = $chika_line_arr[0];
+			$chika_line_y = $chika_line_arr[1];
+			$chika = $chika_line_arr[2];
 
-			$tmp_arr = $chika_arr[$i];
-			$chika_arr[$i] = $chika_arr[$j];
-			$chika_arr[$j] = $tmp_arr;
+			$distance = sqrt(pow(abs($x - $chika_line_x),2) + pow(abs($y - $chika_line_y),2));
+
+			$distance_arr[] = array($i => $distance);
+			$chika_arr[] = $chika;
 		}
 
+		$total_cnt = count($distance_arr);
+
+		for ( $i = 0; $i < $total_cnt; $i++) {
+			for ( $j = $i + 1; $j < $total_cnt; ++$j) {
+				if ($distance_arr[$i][$i] > $distance_arr[$j][$j]) {
+					$tmp_arr = array($j => $distance_arr[$i][$i]);
+					$distance_arr[$i] = array($i => $distance_arr[$j][$j]);
+					$distance_arr[$j] = $tmp_arr;
+
+					$tmp_arr = $chika_arr[$i];
+					$chika_arr[$i] = $chika_arr[$j];
+					$chika_arr[$j] = $tmp_arr;
+				}
+
+			}
+		}
+
+
+		$counter = 1;
+		$chika_sum = 0;
+
+
+		foreach( $distance_arr as $key => $value ) {
+			$chika_sum += $chika_arr[$key];
+			if ( $counter == $kinbou_num ) {
+				break;
+			}
+			$counter++;
+		}
+
+		return round($chika_sum / $kinbou_num);
 	}
 }
 
+$a = new Chika("file.txt");
+$filename =  $a -> getFileName();
+echo $a -> calcChika($filename)."\n";
 
-$counter = 1;
-$chika_sum = 0;
+$b = new Chika("file2.txt");
+$filename =  $b -> getFileName();
+echo $b -> calcChika($filename)."\n";
 
-
-foreach( $distance_arr as $key => $value ) {
-	$chika_sum += $chika_arr[$key];
-	if ( $counter == $kinbou_num ) {
-		break;
-	}
-	$counter++;
-}
-
-echo round($chika_sum / $kinbou_num)."\n";
 ?>
